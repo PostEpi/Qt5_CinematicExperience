@@ -1,13 +1,15 @@
-import QtQuick 2.0
-import QtQuick.Window 2.2
+import QtQuick
+import QtQuick.Window
 import "content"
 
 Window {
     id: mainWindow
     visible: true
+    visibility: Window.FullScreen
 
     width: 1920
     height: 1080
+    property bool diagOverlay: false
 
     Item {
         width: parent.width; height: parent.height;
@@ -52,6 +54,21 @@ Window {
             anchors.left: parent.left
             anchors.leftMargin: 8
         }
+
+        Rectangle {
+            anchors.fill: parent
+            visible: mainWindow.diagOverlay
+            z: 10000
+            color: "#cc0000"
+            opacity: 0.92
+
+            Text {
+                anchors.centerIn: parent
+                color: "#ffffff"
+                font.pixelSize: 72
+                font.bold: true
+                text: "DIAG OVERLAY: Qt5_CinematicExperience"
+            }
+        }
     }
 }
-

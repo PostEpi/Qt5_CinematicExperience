@@ -1,5 +1,5 @@
-import QtQuick 2.0
-import QtQuick.Particles 2.0
+import QtQuick
+import QtQuick.Particles
 
 Item {
     id: root
@@ -67,6 +67,7 @@ Item {
     Item {
         id: switchItem
         anchors.fill: switchBackgroundImage
+        clip: true
 
         SequentialAnimation {
             id: switchEffectAnimation
@@ -149,22 +150,4 @@ Item {
         }
     }
 
-    // Mask out switch parts which should be hidden
-    ShaderEffect {
-        id: shaderItem
-        property variant source: ShaderEffectSource { sourceItem: switchItem; hideSource: true }
-        property variant maskSource: ShaderEffectSource { sourceItem: switchBackgroundImage; hideSource: true }
-
-        anchors.fill: switchBackgroundImage
-
-        fragmentShader: "
-            varying highp vec2 qt_TexCoord0;
-            uniform highp float qt_Opacity;
-            uniform sampler2D source;
-            uniform sampler2D maskSource;
-            void main(void) {
-                gl_FragColor = texture2D(source, qt_TexCoord0.st) * (texture2D(maskSource, qt_TexCoord0.st).a) * qt_Opacity;
-            }
-        "
-    }
 }

@@ -1,26 +1,26 @@
-import QtQuick 2.0
-import QtQuick.Particles 2.0
-import QtGraphicalEffects 1.0
+import QtQuick
+import QtQuick.Particles
 
 Item {
     id: root
 
     // Set this to blur the mainView when showing something on top of it
     property real blurAmount: 0
+    // Delay infinite animations one event-loop tick to avoid Qt6 startup spin on some eglfs stacks.
+    property bool startupReady: false
 
-    // Updates the blur shader source, best called right before adding blurAmount
+    // Kept for compatibility with callers in other QML files.
     function scheduleUpdate() {
-        mainContentSource.scheduleUpdate();
+        // No-op on Qt6 fallback path.
     }
 
     anchors.fill: parent
 
-    // Update blur shader source when width/height changes
-    onHeightChanged: {
-        root.scheduleUpdate();
-    }
-    onWidthChanged: {
-        root.scheduleUpdate();
+    Timer {
+        interval: 1
+        repeat: false
+        running: true
+        onTriggered: root.startupReady = true
     }
 
     Item {
@@ -111,7 +111,7 @@ Item {
             interpolate: true
             loops: Animation.Infinite
             visible: settings.showLighting || settings.showShootingStarParticles
-            running: !detailsView.isShown && !infoView.isShown && (settings.showLighting || settings.showShootingStarParticles)
+            running: root.startupReady && !detailsView.isShown && !infoView.isShown && (settings.showLighting || settings.showShootingStarParticles)
         }
 
         PathAnimation {
@@ -119,7 +119,7 @@ Item {
             duration: 5000
             orientation: PathAnimation.RightFirst
             anchorPoint: Qt.point(lightImage.width/2, lightImage.height/2)
-            running: true
+            running: root.startupReady
             paused: detailsView.isShown || infoView.isShown || (!settings.showLighting && !settings.showShootingStarParticles)
             loops: Animation.Infinite
             path: Path {
@@ -214,17 +214,11 @@ Item {
         }
     }
 
-    FastBlur {
+    Rectangle {
         anchors.fill: mainViewArea
-        radius: root.blurAmount
+        color: "#000000"
+        opacity: Math.min(0.5, root.blurAmount / 80)
         visible: root.blurAmount
-        source: ShaderEffectSource {
-            id: mainContentSource
-            anchors.fill: parent
-            sourceItem: mainViewArea
-            hideSource: false
-            live: false
-            visible: root.blurAmount
-        }
+        z: 99
     }
 }

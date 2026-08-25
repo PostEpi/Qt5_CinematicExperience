@@ -1,12 +1,20 @@
-import QtQuick 2.0
+import QtQuick
 
 Item {
     id: root
     property int frameCounter: 0
     property int fps: 0;
+    property bool startupReady: false
 
     width: 160
     height: 48
+
+    Timer {
+        interval: 1
+        repeat: false
+        running: true
+        onTriggered: root.startupReady = true
+    }
 
     Image {
         id: spinnerImage
@@ -16,6 +24,7 @@ Item {
             to: 360
             duration: 800
             loops: Animation.Infinite
+            running: root.startupReady
         }
         onRotationChanged: frameCounter++;
     }

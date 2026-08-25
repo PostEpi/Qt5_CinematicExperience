@@ -1,5 +1,5 @@
-import QtQuick 2.0
-import QtQuick.Particles 2.0
+import QtQuick
+import QtQuick.Particles
 
 Item {
     id: root
@@ -55,44 +55,6 @@ Item {
             height: (parent.height / 2)
             strength: 8
         }
-    }
-
-    // Button background
-    ShaderEffectSource {
-        id: shaderSource
-        anchors.fill: buttonBackgroundImage
-        sourceItem: buttonBackgroundImage
-        hideSource: true
-        visible: false
-    }
-
-    // Particles
-    ShaderEffectSource {
-        id: shaderSource2
-        anchors.fill: particleSystem
-        sourceItem: particleSystem
-        hideSource: true
-        visible: false
-    }
-
-    // Mask particles inside the button
-    ShaderEffect {
-        id: shaderEffectItem
-        anchors.fill: shaderSource
-
-        property variant source: shaderSource
-        property variant source2: shaderSource2
-
-        fragmentShader: "
-            uniform sampler2D source;
-            uniform sampler2D source2;
-            uniform lowp float qt_Opacity;
-            varying highp vec2 qt_TexCoord0;
-            void main() {
-                lowp vec4 pix = texture2D(source, qt_TexCoord0);
-                lowp vec4 pix2 = texture2D(source2, qt_TexCoord0);
-                gl_FragColor = qt_Opacity * (pix + pix.a * pix2);
-            }"
     }
 
     Text {

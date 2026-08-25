@@ -28,13 +28,42 @@ int main(int argc, char* argv[])
 
 #include <QGuiApplication>
 #include <QQmlApplicationEngine>
+#include <QDebug>
+#include <QScreen>
+#include <QUrl>
 
 int main(int argc, char *argv[])
 {
     QGuiApplication app(argc, argv);
+    qInfo() << "Cinematic start. Platform:" << QGuiApplication::platformName();
+    const auto screens = QGuiApplication::screens();
+    qInfo() << "Screen count:" << screens.size();
+    for (int i = 0; i < screens.size(); ++i) {
+        const QScreen *s = screens.at(i);
+        qInfo() << "Screen" << i << s->name() << s->geometry() << s->size();
+    }
 
     QQmlApplicationEngine engine;
-    engine.load(QUrl(QStringLiteral("qrc:/Qt5_CinematicExperience.qml")));
+    const QUrl mainQmlUrl(QStringLiteral("qrc:/Qt5_CinematicExperience.qml"));
+    QObject::connect(
+        &engine, &QQmlApplicationEngine::objectCreated, &app,
+        [mainQmlUrl](QObject *obj, const QUrl &objUrl) {
+            if (!obj && objUrl == mainQmlUrl) {
+                qCritical() << "QML load failed for" << mainQmlUrl;
+                QCoreApplication::exit(-1);
+                return;
+            }
+            if (obj && objUrl == mainQmlUrl) {
+                qInfo() << "QML root object created:" << obj->metaObject()->className();
+            }
+        },
+        Qt::QueuedConnection);
+    engine.load(mainQmlUrl);
+    const auto roots = engine.rootObjects();
+    qInfo() << "Root object count after load:" << roots.size();
+    if (!roots.isEmpty()) {
+        qInfo() << "Root[0] class:" << roots.first()->metaObject()->className();
+    }
 
     return app.exec();
 }
