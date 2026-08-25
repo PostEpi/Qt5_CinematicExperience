@@ -1,0 +1,2 @@
+fix_qt5_3_compatibility.patch -p1
+cinematicexperience-killall-bootanim-before-show.patch -p1
